@@ -6,4 +6,9 @@ const keyToId = async (publicKey) => {
   return Buffer.from(shortSpki)
 }
 
-module.exports = { keyToId }
+const signatureHash = async (signature) => {
+  const shortSignature = await window.crypto.subtle.digest('SHA-1', signature)
+  return Buffer.from(shortSignature)
+}
+
+module.exports = { keyToId, signatureHash }

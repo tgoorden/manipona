@@ -1,6 +1,6 @@
 const _ = require('lodash')
-const debug = require('debug')('ledger')
-const { keyToId } = require('./util')
+const debug = require('debug')('manipona:ledger')
+const { keyToId, signatureHash } = require('./util')
 const dbName = 'manipona-ledger'
 const objectStoreName = 'ledger'
 
@@ -25,7 +25,8 @@ const Ledger = async (keys) => {
       if (!db.objectStoreNames.contains(objectStoreName)) {
         var objStore = db.createObjectStore(objectStoreName, { autoIncrement: true })
         objStore.createIndex('peer', 'peer', { unique: false })
-        objStore.createIndex('amount', 'amount', { unique: false })
+        objStore.createIndex('timestamp', 'timestamp', { unique: false })
+        objStore.createIndex('transferId', 'transferId', { unique: true })
       }
     }
     return promisify(req)
@@ -42,6 +43,7 @@ const Ledger = async (keys) => {
     _.pick(transfer, fieldsToSign)
     transfer.tosign = _.join(_.map(_.pick(transfer, fieldsToSign), (value, key) => `${key}:${value}`), ';')
     transfer.signature = await window.crypto.subtle.sign(key.algo, key.privateKey, encoder.encode(transfer.tosign))
+    transfer.transferId = (await signatureHash(transfer.signature)).toString('hex')
     return transfer
   }
 
@@ -65,6 +67,7 @@ const Ledger = async (keys) => {
     }
     store.transaction.db.close()
   }
+
 
   await self.init()
   return self

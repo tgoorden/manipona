@@ -2,7 +2,7 @@ var PeerRelay = require('peer-relay')
 var DHT = require('bittorrent-dht')
 var debug = require('debug')
 
-debug.enable('peer-relay:*,bittorrent-dht')
+// debug.enable('peer-relay:*,bittorrent-dht')
 
 module.exports.start = function (opts) {
   /* The PeerRelay socket relays messages through it's immediately connected peers to allow
