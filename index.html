@@ -5,17 +5,26 @@
   </head>
   <body>
     <div id="transfer">
-      <label>Peer ID
-        <input type="text" id="peerId" />
-      </label>
+      <div>
+        <label>My ID:
+          <span id="myId"></span>
+        </label>
+      </div>
+      <div>
+        <label>Peer ID
+          <select id="peerId">
+
+          </select>
+        </label>
+      </div>
       <button id="hello">Say hello</button>
       <button id="signKey">Show me your public verification key</button>
       <button id="encryptKey">Show me your public encryption key</button>
-    </div>
-    <div>
-      <label>Amount
-        <input type="number" id="amount" min="1" />
-      </label>
+      <div>
+        <label>Amount
+          <input type="number" id="amount" min="1" />
+        </label>
+      </div>
     </div>
     <div id="log"></div>
     <script src="./main.js"></script>

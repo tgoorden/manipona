@@ -1,9 +1,7 @@
-const PeerRelay = require('peer-relay')
 const WebDHT = require('./WebDHT')
 const Protocol = require('./protocol')
 const Ledger = require('./ledger')
 const _ = require('lodash')
-const wrtc = require('electron-webrtc')
 const crypto = window.crypto
 const { getKeys } = require('./keystore')
 const { keyToId } = require('./util')
@@ -34,11 +32,21 @@ const startup = async () => {
   const id = await keyToId(keys.encrypt.publicKey)
   const dht = WebDHT.start({
     id,
-    bootstrap: ['ws://localhost:8000']
+    bootstrap: ['ws://localhost:8000'],
+    update: (nodes) => {
+      const selectPeer = document.getElementById('peerId')
+      selectPeer.innerHTML = ''
+      _.each(nodes, (node) => {
+        const option = document.createElement('option')
+        option.value = node.host
+        option.innerHTML = node.host
+        selectPeer.appendChild(option)
+      })
+    }
   })
   const ledger = await Ledger(keys)
   Protocol.attach(dht, keys, ledger)
-  log(`Local identifier: ${dht.nodeId.toString('hex')}`)
+  document.getElementById('myId').innerHTML = dht.nodeId.toString('hex')
   dht.onmessage((doc, peerId) => {
     log(`${peerId.toString('hex')} says: ${JSON.stringify(doc)}`)
   })

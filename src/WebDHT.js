@@ -1,6 +1,7 @@
-var PeerRelay = require('peer-relay')
-var DHT = require('bittorrent-dht')
-var debug = require('debug')
+const PeerRelay = require('peer-relay')
+const DHT = require('bittorrent-dht')
+const debug = require('debug')
+const _ = require('lodash')
 
 // debug.enable('peer-relay:*,bittorrent-dht')
 
@@ -49,6 +50,7 @@ module.exports.start = function (opts) {
 
   dht.listen()
 
+  const update = opts.update || _.noop
   // Bootstrap manually. Any peer that PeerRelay connects to, add it to the dht
   socket.peer.on('peer', function (id) {
     dht.addNode({
@@ -56,6 +58,7 @@ module.exports.start = function (opts) {
       port: 0,
       id: id
     })
+    update(dht.toJSON().nodes)
   })
 
   return dht
