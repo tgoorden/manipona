@@ -1,0 +1,25 @@
+{
+  "name": "manipona-p2p-app",
+  "version": "0.1.0",
+  "description": "Proof of concept P2P payment system w guaranteed income and demurrage",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "standard 'src/**/*.js' && browserify ./src/index.js -s WebDHT -d -o ./dist/main.js -u ./dist/** -i ws",
+    "watch:src": "nodemon --watch src -x \"npm run bundle\"",
+    "watch:html": "nodemon --watch index.html -x \"cp index.html dist/index.html\"",
+    "watch": "npm run watch:src & npm run watch:html"
+  },
+  "author": "Thomas Goorden <tg@eenwereldmetlef.be>",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "peer-relay": "0.0.2"
+  },
+  "devDependencies": {
+    "browserify": "^16.5.1",
+    "standard": "^14.3.3",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  }
+}
