@@ -16,8 +16,10 @@ module.exports.attach = (dht, keys, ledger) => {
     encryptKey: (doc, peer) => {
       dht.sendMessage({ encryptKey: keys.encrypt.jwk }, peer)
     },
-    requestTransfer: (doc, peer) => {
-      
+    transfer: (doc, peer) => {
+      const confirmation = {
+        
+      }
     }
   }
   dht.onmessage((doc, peer) => {

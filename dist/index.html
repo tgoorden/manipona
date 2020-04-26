@@ -3,28 +3,41 @@
   <head>
     <title>Welcome to mani pona</title>
   </head>
+  <style>
+    .line {
+      padding-bottom: 1em;
+    }
+  </style>
   <body>
     <div id="transfer">
-      <div>
-        <label>My ID:
+      <div class="line">
+        <label>My account ID:
           <span id="myId"></span>
         </label>
       </div>
-      <div>
-        <label>Peer ID
+      <div class="line">
+        <label>Current balance:
+          <span id="balance"></span>
+        </label>
+      </div>
+      <div class="line">
+        <label>Select peer account ID:
           <select id="peerId">
 
           </select>
         </label>
       </div>
-      <button id="hello">Say hello</button>
-      <button id="signKey">Show me your public verification key</button>
-      <button id="encryptKey">Show me your public encryption key</button>
-      <div>
-        <label>Amount
+      <div class="line">
+        <button id="hello">Say hello</button>
+        <button id="signKey">Ask for public verification key</button>
+        <button id="encryptKey">Ask for public encryption key</button>
+      </div>
+      <div class="line">
+        <label>Amount of mani to transfer
           <input type="number" id="amount" min="1" />
         </label>
       </div>
+      <button id="transfer">Confirm transfer</button>
     </div>
     <div id="log"></div>
     <script src="./main.js"></script>

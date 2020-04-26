@@ -9,9 +9,17 @@ const promisify = (request) => new Promise((resolve, reject) => {
   request.onerror = (e) => reject(e.error)
 })
 
-const Ledger = async (keys) => {
+const promisifyCursor = (request) => new Promise((resolve, reject) => {
+  request.onsuccess = (e) => {
+    resolve(e.target.result.value)
+  }
+  request.onerror = (e) => reject(e.error)
+})
+
+const Ledger = async (keys, update = _.noop) => {
   const self = this
   self.keys = keys
+  self.update = update
   self.id = await keyToId(keys.encrypt.publicKey)
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
@@ -47,6 +55,11 @@ const Ledger = async (keys) => {
     return transfer
   }
 
+  self.lastTransfer = async () => {
+    const store = await objectStore('readonly')
+    return promisifyCursor(store.openCursor(null, 'prev'))
+  }
+
   self.init = async () => {
     let store = await objectStore('readonly')
     const count = await promisify(store.count())
@@ -65,9 +78,10 @@ const Ledger = async (keys) => {
     } else {
       debug('Ledger present and activated')
     }
+    const lastTransfer = await self.lastTransfer()
+    self.update(lastTransfer)
     store.transaction.db.close()
   }
-
 
   await self.init()
   return self

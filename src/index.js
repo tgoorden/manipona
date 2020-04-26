@@ -8,12 +8,14 @@ const { keyToId } = require('./util')
 
 require('debug').enable('manipona:*')
 
+const log = require('debug')('manipona:main')
+/**
 const log = (message) => {
   const logLine = document.createElement('div')
   logLine.innerHTML = message
   document.getElementById('log').appendChild(logLine)
 }
-
+**/
 const startup = async () => {
   if (!crypto || !crypto.subtle) {
     log('Your browser does not support the necessary "SubtleCrypto" operations.')
@@ -44,20 +46,31 @@ const startup = async () => {
       })
     }
   })
-  const ledger = await Ledger(keys)
+  const ledger = await Ledger(keys, (lastTransfer) => {
+    log(lastTransfer)
+    document.getElementById('balance').innerHTML = lastTransfer.balance
+  })
+
   Protocol.attach(dht, keys, ledger)
   document.getElementById('myId').innerHTML = dht.nodeId.toString('hex')
   dht.onmessage((doc, peerId) => {
     log(`${peerId.toString('hex')} says: ${JSON.stringify(doc)}`)
   })
-  const commands = ['hello', 'signKey', 'encryptKey']
+  const commands = ['hello', 'signKey', 'encryptKey', 'transfer']
   _.each(commands, (command) => {
     document.getElementById(command).onclick = () => {
       const peerId = document.getElementById('peerId').value
-      const peer = Buffer.from(peerId, 'hex')
-      dht.sendMessage({ command }, peer, (e) => {
-        if (e) console.log(e)
-      })
+      const msg = { command }
+      if (!_.isEmpty(peerId)) {
+        const peer = Buffer.from(peerId, 'hex')
+        const amount = parseInt(document.getElementById('amount'))
+        if (amount > 0) {
+          msg.amount = amount
+        }
+        dht.sendMessage(msg, peer, (e) => {
+          if (e) console.log(e)
+        })
+      }
     }
   })
 }
