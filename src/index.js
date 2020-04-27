@@ -49,13 +49,11 @@ const startup = async () => {
   const ledger = await Ledger(keys, (lastTransfer) => {
     log(lastTransfer)
     document.getElementById('balance').innerHTML = lastTransfer.balance
+    document.getElementById('amount').setAttribute('max', lastTransfer.balance)
   })
 
-  Protocol.attach(dht, keys, ledger)
+  const protocol = Protocol(dht, keys, ledger)
   document.getElementById('myId').innerHTML = dht.nodeId.toString('hex')
-  dht.onmessage((doc, peerId) => {
-    log(`${peerId.toString('hex')} says: ${JSON.stringify(doc)}`)
-  })
   const commands = ['hello', 'signKey', 'encryptKey', 'transfer']
   _.each(commands, (command) => {
     document.getElementById(command).onclick = () => {
@@ -63,13 +61,15 @@ const startup = async () => {
       const msg = { command }
       if (!_.isEmpty(peerId)) {
         const peer = Buffer.from(peerId, 'hex')
-        const amount = parseInt(document.getElementById('amount'))
-        if (amount > 0) {
-          msg.amount = amount
+        if (command === 'transfer') {
+          const amount = parseInt(document.getElementById('amount').value)
+          if (amount > 0) {
+            msg.amount = amount
+          } else {
+            return
+          }
         }
-        dht.sendMessage(msg, peer, (e) => {
-          if (e) console.log(e)
-        })
+        protocol.sendCommand(msg, peer).then(() => log(`Command ${command} sent`))
       }
     }
   })

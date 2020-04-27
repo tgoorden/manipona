@@ -26,20 +26,18 @@ module.exports.start = function (opts) {
   }
 
   dht.sendMessage = (doc, id, cb) => {
-    // debug(doc)
     dht.sendBuffer(Buffer.from(JSON.stringify(doc)), id)
   }
 
   dht.onmessage = (f) => {
     socket.on('message', (buffer, rinfo) => {
-      console.log(`Received message: ${buffer.toString()}`)
       const peerId = rinfo.address
       try {
         const doc = JSON.parse(buffer.toString())
         f(doc, peerId)
-      } catch {
-        // if not JSON, pass directly
-        f(buffer.toString(), peerId)
+      } catch (e) {
+        debug(buffer.toString())
+        debug(e.error)
       }
     })
   }

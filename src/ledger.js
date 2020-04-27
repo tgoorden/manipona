@@ -46,13 +46,25 @@ const Ledger = async (keys, update = _.noop) => {
     return transaction.objectStore(objectStoreName)
   }
 
-  const signTransfer = async (transfer, key) => {
+  self.signTransfer = async (transfer) => {
+    const key = self.keys.sign
     const fieldsToSign = ['amount', 'peer', 'timestamp', 'balance', 'previous']
-    _.pick(transfer, fieldsToSign)
-    transfer.tosign = _.join(_.map(_.pick(transfer, fieldsToSign), (value, key) => `${key}:${value}`), ';')
-    transfer.signature = await window.crypto.subtle.sign(key.algo, key.privateKey, encoder.encode(transfer.tosign))
-    transfer.transferId = (await signatureHash(transfer.signature)).toString('hex')
-    return transfer
+    const doc = _.pick(transfer, fieldsToSign)
+    doc.tosign = _.join(_.map(_.pick(transfer, fieldsToSign), (value, key) => `${key}:${value}`), ';')
+    const signature = await window.crypto.subtle.sign(key.algo, key.privateKey, encoder.encode(transfer.tosign))
+    doc.transferId = (await signatureHash(signature)).toString('hex')
+    return doc
+  }
+
+  self.addTransfer = async (transfer) => {
+    const fields = ['amount', 'peer', 'timestamp', 'balance', 'previous', 'tosign', 'transferId']
+    const doc = _.pick(transfer, fields)
+    debug(doc)
+    // checks and balances here!
+    const store = await objectStore('readwrite')
+    const last = await promisify(store.put(doc))
+    self.update(last)
+    return last
   }
 
   self.lastTransfer = async () => {
@@ -72,14 +84,14 @@ const Ledger = async (keys, update = _.noop) => {
         balance: 100,
         previous: 'init' // this should be the signature of the previous transaction, but since this is the first one, we use a special value
       }
-      transfer = await signTransfer(transfer, keys.sign)
+      const doc = await self.signTransfer(transfer)
       store = await objectStore('readwrite')
-      await promisify(store.put(transfer))
+      await promisify(store.put(doc))
     } else {
       debug('Ledger present and activated')
     }
-    const lastTransfer = await self.lastTransfer()
-    self.update(lastTransfer)
+    const last = await self.lastTransfer()
+    self.update(last)
     store.transaction.db.close()
   }
 
