@@ -51,20 +51,22 @@ const Ledger = async (keys, update = _.noop) => {
     const fieldsToSign = ['amount', 'peer', 'timestamp', 'balance', 'previous']
     const doc = _.pick(transfer, fieldsToSign)
     doc.tosign = _.join(_.map(_.pick(transfer, fieldsToSign), (value, key) => `${key}:${value}`), ';')
-    const signature = await window.crypto.subtle.sign(key.algo, key.privateKey, encoder.encode(transfer.tosign))
+    const signature = await window.crypto.subtle.sign(key.algo, key.privateKey, encoder.encode(doc.tosign))
     doc.transferId = (await signatureHash(signature)).toString('hex')
     return doc
   }
 
   self.addTransfer = async (transfer) => {
+    debug(`Adding transfer: ${JSON.stringify(transfer)}`)
     const fields = ['amount', 'peer', 'timestamp', 'balance', 'previous', 'tosign', 'transferId']
     const doc = _.pick(transfer, fields)
-    debug(doc)
+    debug(`Doc to insert: ${JSON.stringify(doc)}`)
     // checks and balances here!
     const store = await objectStore('readwrite')
-    const last = await promisify(store.put(doc))
-    self.update(last)
-    return last
+    await promisify(store.put(doc))
+    debug('Transfer added to ledger')
+    const lastUpdate = await self.lastTransfer()
+    self.update(lastUpdate)
   }
 
   self.lastTransfer = async () => {

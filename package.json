@@ -16,12 +16,13 @@
   "dependencies": {
     "bittorrent-dht": "^9.0.3",
     "debug": "^4.1.1",
-    "electron-webrtc": "^0.3.0",
     "lodash": "^4.17.15",
     "peer-relay": "git+https://github.com/tgoorden/peer-relay.git"
   },
   "devDependencies": {
     "browserify": "^16.5.1",
+    "live-server": "^1.2.1",
+    "nodemon": "^2.0.3",
     "standard": "^14.3.3"
   }
 }

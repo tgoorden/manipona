@@ -47,9 +47,11 @@ const startup = async () => {
     }
   })
   const ledger = await Ledger(keys, (lastTransfer) => {
-    log(lastTransfer)
-    document.getElementById('balance').innerHTML = lastTransfer.balance
-    document.getElementById('amount').setAttribute('max', lastTransfer.balance)
+    if (!_.isEmpty(lastTransfer)) {
+      log(`Last transfer: ${JSON.stringify(lastTransfer)}`)
+      document.getElementById('balance').innerHTML = lastTransfer.balance
+      document.getElementById('amount').setAttribute('max', lastTransfer.balance)
+    }
   })
 
   const protocol = Protocol(dht, keys, ledger)

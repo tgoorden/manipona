@@ -36,8 +36,8 @@ module.exports.start = function (opts) {
         const doc = JSON.parse(buffer.toString())
         f(doc, peerId)
       } catch (e) {
-        debug(buffer.toString())
-        debug(e.error)
+        debug('Error parsing message')
+        debug(e)
       }
     })
   }
