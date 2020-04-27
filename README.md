@@ -19,6 +19,7 @@ Start a local DHT server from within the root folder:
 In another process, start a webserver from the `dist` directory:
 
 `cd dist`
+
 `live-server`
 
 (this defaults to port 8080)
